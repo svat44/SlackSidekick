@@ -39,3 +39,24 @@ app.command("/sv-joke", async ({command, ack, respond}) => {
         await respond("Sorry, I couldn't fetch a joke at the moment.");
     }
 });
+
+app.command("/sv-weekly-headline", async ({command, ack, respond}) => {
+    await ack();
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini-search-preview",
+                messages: [{role: "user", content: "What is a top headline in the world this week?"}]
+            })
+        });
+        const data = await response.json();
+        await respond(data.choices[0].message.content);
+    } catch (error) {
+        await respond("Sorry, I couldn't fetch the weekly headline at the moment.");
+    }
+});
