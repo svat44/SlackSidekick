@@ -51,7 +51,7 @@ app.command("/sv-weekly-headline", async ({command, ack, respond}) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-search-preview",
-                messages: [{role: "user", content: "What is a top headline in the world this week?"}]
+                messages: [{role: "user", content: "What is a top headline in the world this week? ONLY RETURN ME ONE SINGLE HEADLINE AND THE NEWS SOURCE TO LEARN MORE. KEEP THE RESPONSE UNDER 20 WORDS AND A LINK."}]
             })
         });
         const data = await response.json();
