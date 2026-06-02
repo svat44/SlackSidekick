@@ -13,14 +13,16 @@ Hosted on hackclub's Linux server "Nest" via systemd. Restarts with `systemctl r
 ### **Utility Commands** ###
   `/sv-ping` — Check the bot's latency.
   
-  `/sv-help` — Display this help message.\n
+  `/sv-help` — Display this help message.
   
-  `/sv-whatdoisay [style]` — Suggest a reply to recent channel messages.\n
+  `/sv-whatdoisay [style]` — Suggest a reply to recent channel messages.
         
 ### **Informative Commands** ###
-  `/sv-weekly-headline` — Get a top headline from this week.\n"
-  `/sv-math [question]` — Solve a math problem step by step.\n"
+  `/sv-weekly-headline` — Get a top headline from this week.
+  
+  `/sv-math [question]` — Solve a math problem step by step.
         
 ### **Game Commands** ###
-  `/sv-joke` — Get a random joke."
-  `/sv-blackjack [start|hit|stand]` — Play a game of blackjack."
+  `/sv-joke` — Get a random joke.
+  
+  `/sv-blackjack [start|hit|stand]` — Play a game of blackjack.
