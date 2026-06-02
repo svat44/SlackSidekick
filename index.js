@@ -78,7 +78,7 @@ app.command("/sv-math", async ({command, ack, respond}) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-search-preview",
-                messages: [{role: "user", content: `You are my math tutor. Here is my question, please solve it step by step, showing your work: ${question}. Do not talk any gish-pish and only focus on solving the problem. IE: if I were to say can u help solve (x+2)(x-2) = 0 find x, just give me the steps, numbered 1. new line 2. new line 3. new line 4. so on.`}]
+                messages: [{role: "user", content: `You are my math tutor. Here is my question, please solve it step by step, showing your work: ${question}. Do not talk any gish-pish and only focus on solving the problem. IE: if I were to say can u help solve (x+2)(x-2) = 0 find x, just give me the steps, numbered 1. new line 2. new line 3. new line 4. so on. The answer should have ** and ** (bold) before and after it. If the question is not related to math, say "Gee Gilly Googly Winkers, you have confused me, I am only a math tutor!"`}]
             })
         });
         const data = await response.json();
