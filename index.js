@@ -35,7 +35,8 @@ app.command("/sv-help", async ({command, ack, respond}) => {
         "- `/sv-math [question]` — Solve a math problem step by step.\n" +
         "*Game Commands*\n" +
         "- `/sv-joke` — Get a random joke.\n" +
-        "- `/sv-blackjack [start|hit|stand]` — Play a game of blackjack."
+        "- `/sv-blackjack [start|hit|stand]` — Play a game of blackjack." +
+        "- `/sv-als-stats` — Get current statistics on ALS."
     );
 });
 
@@ -218,7 +219,6 @@ app.command("/sv-blackjack", async ({command, ack, respond}) => {
 });
 
 // STATISTICS ON ALS
-
 app.command("/sv-als-stats", async ({command, ack, respond}) => {
     await ack();
     try {
@@ -230,12 +230,65 @@ app.command("/sv-als-stats", async ({command, ack, respond}) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-search-preview",
-                messages: [{role: "user", content: `Search the web and Return ONLY the following four lines, no extra text, no explanation, no preamble, newline per statistic: People diagnosed with ALS right now: [number] People diagnosed with ALS every year: [number] Average lifespan after ALS diagnosis: [number] years Deaths by ALS in the past 10 years: [number]. Use real statistics.`}]
+                messages: [{role: "user", content: "Search the web and Return ONLY the following four lines, no extra text, no explanation, no preamble, newline per statistic: People diagnosed with ALS right now: `[number]` People diagnosed with ALS every year: `[number]` Average lifespan after ALS diagnosis: `[number] years` Deaths by ALS in the past 10 years: `[number]`. Use real statistics. Link to the source you pulled it from."}]
             })
         });
         const data = await response.json();
         await respond(data.choices[0].message.content);
     } catch (error) {
-        await respond("Sorry, I couldn't fetch the weekly headline at the moment.");
+        await respond("Sorry, I couldn't do that right now.");
+    }
+});
+
+// NEWS ON ALS RESEARCH
+app.command("/sv-als-research", async ({command, ack, respond}) => {
+    await ack();
+    // give me the date and time
+    const search_ref_time = new Date().toISOString();
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini-search-preview",
+                messages: [{role: "user", content: `Look for news on ALS research that has been published in the past 6 months from ${search_ref_time}. Return a headline, a one sentence summary, and a link to learn more. If you can't find anything, say 'I couldn't find any recent news on ALS research.'`}]
+            })
+        });
+        const data = await response.json();
+        await respond(data.choices[0].message.content);
+    } catch (error) {
+        await respond("Sorry, I couldn't do that right now.");
+    }
+});
+
+// DONATE TO ALS RESEARCH
+app.command("/sv-als-donate", async ({command, ack, respond}) => {
+    await ack();
+    // give me the date and time
+    const search_ref_time = new Date().toISOString();
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                        model: "gpt-4o-mini-search-preview",
+                        messages: [
+                            {
+                                role: "user",
+                                content: `First, in a new line, say Thank you so much for donating to ALS research and supporting the progression of scientific advancement to save many lives that have been affected by this terrible disoreder. Then, look for reputable organizations that accept donations for ALS research. Return the name of the organization, a one sentence description of their work, and a link to their donation page. If you can't find any reputable organizations, say 'I couldn't find any reputable organizations accepting donations for ALS research.'`
+                            }
+                        ]
+                    })
+        });
+        const data = await response.json();
+        await respond(data.choices[0].message.content);
+    } catch (error) {
+        await respond("Sorry, I couldn't do that right now.");
     }
 });
