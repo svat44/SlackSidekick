@@ -27,7 +27,16 @@ app.command("/sv-ping", async ({command, ack, respond}) => {
 
 app.command("/sv-help", async ({command, ack, respond}) => {
     await ack();
-    await respond("Available commands:\n- `/sv-ping`: Check the bot's latency.\n- `/sv-help`: Display this help message.");
+    await respond(
+        "Available commands:\n" +
+        "- `/sv-ping` — Check the bot's latency.\n" +
+        "- `/sv-help` — Display this help message.\n" +
+        "- `/sv-joke` — Get a random joke.\n" +
+        "- `/sv-weekly-headline` — Get a top headline from this week.\n" +
+        "- `/sv-math [question]` — Solve a math problem step by step.\n" +
+        "- `/sv-whatdoisay [style]` — Suggest a reply to recent channel messages.\n" +
+        "- `/sv-blackjack [start|hit|stand]` — Play a game of blackjack."
+    );
 });
 
 // GET A RANDOM JOKE
