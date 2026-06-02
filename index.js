@@ -121,7 +121,7 @@ app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
     const reply = data.choices[0].message.content;
 
     await respond({
-        response_type: 'in_channel',
+        response_type: 'ephemeral',
         text: reply
     });
 });
