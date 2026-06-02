@@ -78,7 +78,7 @@ app.command("/sv-math", async ({command, ack, respond}) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-search-preview",
-                messages: [{role: "user", content: `You are my math tutor. Here is my question, please solve it step by step, showing your work: ${question}. Do not talk any gish-pish and only focus on solving the problem. IE: if I were to say can u help solve (x+2)(x-2) = 0 find x, just give me the steps, numbered 1. new line 2. new line 3. new line 4. so on. The answer should have ** and ** (bold) before and after it. If the question is not related to math, say "Gee Gilly Googly Winkers, you have confused me, I am only a math tutor!"`}]
+                messages: [{role: "user", content: `You are my math tutor. Here is my question, please solve it step by step, showing your work: ${question}. Do not talk any gish-pish and only focus on solving the problem. IE: if I were to say can u help solve (x+2)(x-2) = 0 find x, just give me the steps, numbered 1. new line 2. new line 3. new line 4. so on. If the question is not related to math, say "Gee Gilly Googly Winkers, you have confused me, I am only a math tutor!"`}]
             })
         });
         const data = await response.json();
@@ -86,4 +86,35 @@ app.command("/sv-math", async ({command, ack, respond}) => {
     } catch (error) {
         await respond("Sorry, I couldn't fetch the weekly headline at the moment.");
     }
+});
+
+app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
+    await ack();
+
+    const channelId = command.channel_id;
+
+    const history = await client.conversations.history({
+        channel: channelId,
+        limit: 10
+    });
+
+    const messages = history.messages
+        .reverse()
+        .map(m=> `${m.user ? `<@${m.user}>: ` : ''}${m.text}`)
+        .join('\n');
+
+    const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: "gpt-4o",
+            messages: [{role: "user", content: `You are my assistant, and I want you to suggest a considerate reply in an appropriate tone to the messages in this slack channel. Here are the recent messages: ${messages}`}]
+        })
+    });
+
+    const data = await response.json();
+    await respond(data.choices[0].message.content);
 });
