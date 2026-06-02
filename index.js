@@ -15,7 +15,6 @@ const app = new App({
 })();
 
 // LATENCY CHECKER
-
 app.command("/sv-ping", async ({command, ack, respond}) => {
     const start = Date.now();
     await ack();
@@ -24,7 +23,6 @@ app.command("/sv-ping", async ({command, ack, respond}) => {
 });
 
 // ASK FOR A LIST OF COMMANDS
-
 app.command("/sv-help", async ({command, ack, respond}) => {
     await ack();
     await respond(
@@ -42,7 +40,6 @@ app.command("/sv-help", async ({command, ack, respond}) => {
 });
 
 // GET A RANDOM JOKE
-
 app.command("/sv-joke", async ({command, ack, respond}) => {
     await ack();
     try {
@@ -54,7 +51,6 @@ app.command("/sv-joke", async ({command, ack, respond}) => {
 });
 
 // GET WEEKLY HEADLINES
-
 app.command("/sv-weekly-headline", async ({command, ack, respond}) => {
     await ack();
     try {
@@ -104,7 +100,6 @@ app.command("/sv-math", async ({command, ack, respond}) => {
     }
 });
 
-
 // RESPOND TO PEOPLES' MESSAGES
 app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
     await ack();
@@ -144,6 +139,7 @@ app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
     });
 });
 
+// PLAY BLACKJACK
 app.command("/sv-blackjack", async ({command, ack, respond}) => {
     await ack();
     const userId = command.user_id;
@@ -221,3 +217,25 @@ app.command("/sv-blackjack", async ({command, ack, respond}) => {
     await respond("Type /sv-blackjack start to start a new game.");
 });
 
+// STATISTICS ON ALS
+
+app.command("/sv-als-stats", async ({command, ack, respond}) => {
+    await ack();
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini-search-preview",
+                messages: [{role: "user", content: `Search the web and Return ONLY the following four lines, no extra text, no explanation, no preamble, newline per statistic: People diagnosed with ALS right now: [number] People diagnosed with ALS every year: [number] Average lifespan after ALS diagnosis: [number] years Deaths by ALS in the past 10 years: [number]. Use real statistics.`}]
+            })
+        });
+        const data = await response.json();
+        await respond(data.choices[0].message.content);
+    } catch (error) {
+        await respond("Sorry, I couldn't fetch the weekly headline at the moment.");
+    }
+});
