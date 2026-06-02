@@ -98,6 +98,8 @@ app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
         limit: 10
     });
 
+    const style = command.text.trim().toLowerCase() || "considerate and professional";
+
     const messages = history.messages
         .reverse()
         .map(m=> `${m.user ? `<@${m.user}>: ` : ''}${m.text}`)
@@ -111,10 +113,15 @@ app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
         },
         body: JSON.stringify({
             model: "gpt-4o",
-            messages: [{role: "user", content: `You are my assistant, and I want you to suggest a considerate reply in an appropriate tone to the messages in this slack channel. Here are the recent messages: ${messages}`}]
+            messages: [{role: "user", content: `You are my assistant, and I want you to suggest a considerate reply in an appropriate tone to the messages in this slack channel. Here are the recent messages: ${messages}. Respond in the following style: ${style}.`}]
         })
     });
 
     const data = await response.json();
-    await respond(data.choices[0].message.content);
+    const reply = data.choices[0].message.content;
+
+    await respond({
+        response_type: 'in_channel',
+        text: reply
+    });
 });
