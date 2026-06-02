@@ -60,3 +60,30 @@ app.command("/sv-weekly-headline", async ({command, ack, respond}) => {
         await respond("Sorry, I couldn't fetch the weekly headline at the moment.");
     }
 });
+
+app.command("/sv-math", async ({command, ack, respond}) => {
+    await ack();
+
+    const question = command.text.trim();
+    if (!(question)) {
+        await respond("Please provide a math question after the command. For example: `/sv-math 1+1`");
+        return;
+    }
+    try {
+        const response = await fetch("https://api.openai.com/v1/chat/completions", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`
+            },
+            body: JSON.stringify({
+                model: "gpt-4o-mini-search-preview",
+                messages: [{role: "user", content: `You are my math tutor. Here is my question, please solve it step by step, showing your work: ${question}. Do not talk any gish-pish and only focus on solving the problem. IE: if I were to say can u help solve (x+2)(x-2) = 0 find x, just give me the steps, numbered 1. new line 2. new line 3. new line 4. so on.`}]
+            })
+        });
+        const data = await response.json();
+        await respond(data.choices[0].message.content);
+    } catch (error) {
+        await respond("Sorry, I couldn't fetch the weekly headline at the moment.");
+    }
+});
