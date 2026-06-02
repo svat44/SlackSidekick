@@ -1,6 +1,7 @@
 require("dotenv").config();
 const { App } = require("@slack/bolt");
 const axios = require("axios");
+const {bjGames, deck, shuffle, handTotal, formatHand} = require("./blackjack");
 
 const app = new App({
     token: process.env.SLACK_BOT_TOKEN,
@@ -13,6 +14,8 @@ const app = new App({
     console.log("bot is running!");
 })();
 
+// LATENCY CHECKER
+
 app.command("/sv-ping", async ({command, ack, respond}) => {
     const start = Date.now();
     await ack();
@@ -20,15 +23,14 @@ app.command("/sv-ping", async ({command, ack, respond}) => {
     await respond(`Pong! Latency: ${latency}ms`); 
 });
 
-app.command("/sv-help", async ({command, ack, respond}) => {
-    await ack();
-    await respond("Available commands:\n- `/sv-ping`: Check the bot's latency.\n- `/sv-help`: Display this help message.");
-});
+// ASK FOR A LIST OF COMMANDS
 
 app.command("/sv-help", async ({command, ack, respond}) => {
     await ack();
     await respond("Available commands:\n- `/sv-ping`: Check the bot's latency.\n- `/sv-help`: Display this help message.");
 });
+
+// GET A RANDOM JOKE
 
 app.command("/sv-joke", async ({command, ack, respond}) => {
     await ack();
@@ -39,6 +41,8 @@ app.command("/sv-joke", async ({command, ack, respond}) => {
         await respond("Sorry, I couldn't fetch a joke at the moment.");
     }
 });
+
+// GET WEEKLY HEADLINES
 
 app.command("/sv-weekly-headline", async ({command, ack, respond}) => {
     await ack();
@@ -61,6 +65,7 @@ app.command("/sv-weekly-headline", async ({command, ack, respond}) => {
     }
 });
 
+// SOLVE MATH PROBLEMS
 app.command("/sv-math", async ({command, ack, respond}) => {
     await ack();
 
@@ -88,6 +93,8 @@ app.command("/sv-math", async ({command, ack, respond}) => {
     }
 });
 
+
+// RESPOND TO PEOPLES' MESSAGES
 app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
     await ack();
 
@@ -125,3 +132,81 @@ app.command('/sv-whatdoisay', async ({command, ack, respond, client }) => {
         text: reply
     });
 });
+
+app.command("/sv-blackjack", async ({command, ack, respond}) => {
+    await ack();
+    const userId = command.user_id;
+    const input = command.text.trim().toLowerCase();
+
+    if (!bjGames[userId] || input === "start") {
+        const dc = shuffle(deck());
+        const hand = [dc.pop(), dc.pop()];
+        const dealerHand = [dc.pop(), dc.pop()];
+        bjGames[userId] = {deck: dc, hand, dealerHand};
+
+        const total = handTotal(hand);
+        if (total === 21) {
+            delete bjGames[userId];
+            await respond(`Blackjack! You win! Your hand: ${formatHand(hand)}. Dealer's hand: ${formatHand(dealerHand)}.`);
+            return;
+        }
+
+        await respond({
+            response_type: 'ephemeral',
+            text: `Game started! Your hand: ${formatHand(hand)} (Total: ${total}). Dealer's hand: ${formatHand(dealerHand, true)}. Type "/sv-blackjack hit" to draw another card or "/sv-blackjack stand" to hold.`
+        });
+        return;
+    }
+
+    const game = bjGames[userId];
+    if (!game) {
+        await respond("Type /sv-blackjack start to start a new game.");
+        return;
+    }
+
+    if (input === "hit") {
+        game.hand.push(game.deck.pop());
+        const total = handTotal(game.hand);
+
+        if (total > 21) {
+            const dealerTotal = handTotal(game.dealerHand);
+            const playerHandText = formatHand(game.hand);
+            const dealerHandText = formatHand(game.dealerHand);
+            delete bjGames[userId];
+            await respond(`Bust! You lose. Your hand: ${playerHandText} (Total: ${total}). Dealer's hand: ${dealerHandText} (Total: ${dealerTotal}). Type /sv-blackjack start to play again.`);
+            return;
+        }
+
+        await respond({
+            response_type: 'ephemeral',
+            text: `You drew a card. Your hand: ${formatHand(game.hand)} (Total: ${total}). Type "/sv-blackjack hit" to draw again or "/sv-blackjack stand" to hold.`
+        });
+        return;
+    }
+
+    if (input === "stand") {
+        while (handTotal(game.dealerHand) < 17) {
+            game.dealerHand.push(game.deck.pop());
+        }
+
+        const plrTtl = handTotal(game.hand);
+        const dlrTtl = handTotal(game.dealerHand);
+        let resultText;
+
+        if (dlrTtl > 21 || plrTtl > dlrTtl) {
+            resultText = `You win! Your hand: ${formatHand(game.hand)} (Total: ${plrTtl}). Dealer's hand: ${formatHand(game.dealerHand)} (Total: ${dlrTtl}).`;
+        } else if (plrTtl === dlrTtl) {
+            resultText = `It's a tie! Your hand: ${formatHand(game.hand)} (Total: ${plrTtl}). Dealer's hand: ${formatHand(game.dealerHand)} (Total: ${dlrTtl}).`;
+        } else {
+            resultText = `You lose! Your hand: ${formatHand(game.hand)} (Total: ${plrTtl}). Dealer's hand: ${formatHand(game.dealerHand)} (Total: ${dlrTtl}).`;
+        }
+
+        const finalText = `Final hands: Dealer: ${formatHand(game.dealerHand)} (Total: ${dlrTtl}), You: ${formatHand(game.hand)} (Total: ${plrTtl}). Type /sv-blackjack start to play again.`;
+        delete bjGames[userId];
+        await respond(`${resultText} ${finalText}`);
+        return;
+    }
+
+    await respond("Type /sv-blackjack start to start a new game.");
+});
+
