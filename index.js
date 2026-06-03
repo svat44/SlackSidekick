@@ -26,20 +26,22 @@ app.command("/sv-ping", async ({command, ack, respond}) => {
 app.command("/sv-help", async ({command, ack, respond}) => {
     await ack();
     await respond(
-        "*Utility Commands*\n" +
+        "*Utility*\n" +
         "- `/sv-ping` — Check the bot's latency.\n" +
         "- `/sv-help` — Display this help message.\n" +
-        "- `/sv-whatdoisay [style]` — Suggest a reply to recent channel messages.\n" +
-        "*Informative Commands*\n" +
+        "- `/sv-whatdoisay [style]` — Suggest a reply to recent channel messages.\n\n" +
+        "*Informative*\n" +
         "- `/sv-weekly-headline` — Get a top headline from this week.\n" +
-        "- `/sv-math [question]` — Solve a math problem step by step.\n" +
-        "*Game Commands*\n" +
+        "- `/sv-math [question]` — Solve a math problem step by step.\n\n" +
+        "*All About ALS*\n" +
+        "- `/sv-als-stats` — Get current statistics on ALS.\n" +
+        "- `/sv-als-research` — Get recent news on ALS research.\n" +
+        "- `/sv-als-donate` — Find reputable organizations to donate to for ALS research.\n\n" +
+        "*Games*\n" +
         "- `/sv-joke` — Get a random joke.\n" +
-        "- `/sv-blackjack [start|hit|stand]` — Play a game of blackjack." +
-        "- `/sv-als-stats` — Get current statistics on ALS."
+        "- `/sv-blackjack [start|hit|stand]` — Play a game of blackjack."
     );
 });
-
 // GET A RANDOM JOKE
 app.command("/sv-joke", async ({command, ack, respond}) => {
     await ack();
