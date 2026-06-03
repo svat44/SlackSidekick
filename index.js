@@ -254,7 +254,7 @@ app.command("/sv-als-research", async ({command, ack, respond}) => {
             },
             body: JSON.stringify({
                 model: "gpt-4o-mini-search-preview",
-                messages: [{role: "user", content: `Look for news on ALS research that has been published in the past 6 months from ${search_ref_time}. Return a headline, a one sentence summary, and a link to learn more. If you can't find anything, say 'I couldn't find any recent news on ALS research.'`}]
+                messages: [{role: "user", content: `PLAIN TEXT NO BOLDING OR MARKDOWN. RETURN ONLY 3 NEWS ARTICLES. DO NOT DO ANY ** OR * OR STYLING OF TEXT. BARE BONES. Look for 3 pieces of news on ALS research that has been published in the past 6 months from ${search_ref_time}. Return a simplified headline, a one sentence <30 word> summary, and a link to learn more. If you can't find anything, say 'I couldn't find any recent news on ALS research.'`}]
             })
         });
         const data = await response.json();
@@ -281,7 +281,7 @@ app.command("/sv-als-donate", async ({command, ack, respond}) => {
                         messages: [
                             {
                                 role: "user",
-                                content: `First, in a new line, say Thank you so much for donating to ALS research and supporting the progression of scientific advancement to save many lives that have been affected by this terrible disoreder. Then, look for reputable organizations that accept donations for ALS research. Return the name of the organization, a one sentence description of their work, and a link to their donation page. If you can't find any reputable organizations, say 'I couldn't find any reputable organizations accepting donations for ALS research.'`
+                                content: `PLAIN TEXT NO BOLDING OR MARKDOWN RETURN ONLY 3 EXAMPLES. DO NOT DO ANY ** OR * OR STYLING OF TEXT. BARE BONES.First, in a new line, say Thank you so much for donating to ALS research and supporting the progression of scientific advancement to save many lives that have been affected by this terrible disoreder. Then, look for reputable organizations that accept donations for ALS research. Return the name of the organization, a one sentence description of their work, and a link to their donation page. If you can't find any reputable organizations, say 'I couldn't find any reputable organizations accepting donations for ALS research. Should not be more than 30 words per line except the first.'`
                             }
                         ]
                     })
